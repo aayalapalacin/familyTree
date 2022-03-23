@@ -14,6 +14,29 @@ CORS(app)
 
 # create the jackson family object
 jackson_family = FamilyStructure("Jackson")
+jackson_family.add_member(
+    {
+    "first_name": "John",
+    "age": 33,
+    "lucky_numbers": [7,13,22],
+}
+)
+
+jackson_family.add_member(
+    {
+    "first_name": "Jane",
+    "age": 35,
+    "lucky_numbers": [10,14,3],
+}
+)
+
+jackson_family.add_member(
+    {
+    "first_name": "Jimmy",
+    "age": 5,
+    "lucky_numbers": [1],
+}
+)
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -35,10 +58,25 @@ def handle_hello():
         "family": members
     }
 
+    return jsonify(members), 200
 
-    return jsonify(response_body), 200
+@app.route('/member', methods=["POST"])
+def addMember():
+    jackson_family.add_member(request.get_json())
+    return jsonify(), 200
+
+@app.route('/member/<int:id>', methods=["GET"])
+def getMember(id):
+    memberData = jackson_family.get_member(id)
+    return jsonify(memberData), 200
+
+@app.route('/member/<int:id>', methods=["DELETE"])
+def deleteMember(id):
+    jackson_family.delete_member(id)
+    return jsonify({"done":True}) , 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=True)
+
